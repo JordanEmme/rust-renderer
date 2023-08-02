@@ -1,5 +1,7 @@
 pub mod tga;
 pub mod line_drawer;
+pub mod mesh;
+pub mod obj_importer;
 
 use std::fs::File;
 use std::io::BufWriter;

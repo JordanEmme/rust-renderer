@@ -6,11 +6,11 @@ pub fn line(x0: u16, y0: u16, x1: u16, y1: u16, img: &mut tga::Image<tga::Rgb>, 
     let mut end_x: u16 = x1;
     let mut end_y: u16 = y1;
 
-    let mut steep: bool = false; 
+    let mut transposed: bool = false; 
     if x0.abs_diff(x1) < y0.abs_diff(y1) { 
         (start_x, start_y) = (start_y, start_x);
         (end_x, end_y) = (end_y, end_x);
-        steep = true; 
+        transposed = true; 
     } 
     if start_x > end_x { 
         (start_x, end_x) = (end_x, start_x);
@@ -21,7 +21,7 @@ pub fn line(x0: u16, y0: u16, x1: u16, y1: u16, img: &mut tga::Image<tga::Rgb>, 
     let mut error2: u32 = 0u32; 
     let mut y: u16 = start_y;
     for x in start_x..end_x { 
-        if steep { 
+        if transposed { 
             let _ = img.set(y, x, color); 
         } else { 
             let _ = img.set(x, y, color); 
