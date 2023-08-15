@@ -1,16 +1,16 @@
 use std::cmp::Ordering;
 
-#[derive(Copy, Clone, Debug)]
-pub struct Vector3<T: PartialOrd + Copy> {
-    pub x: T,
-    pub y: T,
-    pub z: T,
+#[derive(Clone, Debug)]
+pub struct Coords3D<T: PartialOrd + Copy> {
+    pub xs: Vec<T>,
+    pub ys: Vec<T>,
+    pub zs: Vec<T>,
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct Vector2<T: PartialOrd + Copy> {
-    pub u: T,
-    pub v: T,
+#[derive(Clone, Debug)]
+pub struct Coords2D<T: PartialOrd + Copy> {
+    pub us: Vec<T>,
+    pub vs: Vec<T>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -20,22 +20,22 @@ pub struct Triangle {
     pub c: usize,
 }
 
+#[derive(Clone, Debug)]
 pub struct Mesh<T: PartialOrd + Copy> {
-    pub v_positions: Vec<Vector3<T>>,
-    pub v_normals: Vec<Vector3<T>>,
-    pub v_uvs: Vec<Vector2<T>>,
+    pub v_positions: Coords3D<T>, 
+    pub v_normals: Coords3D<T>,
+    pub v_textures: Coords2D<T>,
     pub triangles: Vec<Triangle>,
 }
 
-pub struct Coords3D<T: PartialOrd + Copy> {
-    pub xs: Vec<T>,
-    pub ys: Vec<T>,
-    pub zs: Vec<T>,
-}
-
-pub struct Coords2D<T: PartialOrd + Copy> {
-    pub us: Vec<T>,
-    pub vs: Vec<T>,
+#[derive(Copy, Clone, Debug)]
+pub struct BoundingBox<T: PartialOrd + Copy> {
+    pub min_x: T,
+    pub min_y: T,
+    pub min_z: T,
+    pub max_x: T,
+    pub max_y: T,
+    pub max_z: T,
 }
 
 impl <T: PartialOrd + Copy> Coords3D<T> {
@@ -55,29 +55,28 @@ impl <T: PartialOrd + Copy> Coords2D<T> {
 
 impl<T: PartialOrd + Copy> Mesh<T> {
 
-     fn bounding_box(&self) -> (Vector3<T>, Vector3<T>){
+    fn bounding_box(&self) -> BoundingBox<T>{
 
-        let mut current_vertex = &self.v_positions[0];
+        let (min_x, max_x) = get_vec_min_max(&self.v_positions.xs);
+        let (min_y, max_y) = get_vec_min_max(&self.v_positions.ys);
+        let (min_z, max_z) = get_vec_min_max(&self.v_positions.zs);
 
-        let mut min_x: T = current_vertex.x;
-        let mut min_y: T = current_vertex.y;
-        let mut min_z: T = current_vertex.z;
-        let mut max_x: T = current_vertex.x;
-        let mut max_y: T = current_vertex.y;
-        let mut max_z: T = current_vertex.z;
-        
-        for i in 1..self.v_positions.len() {
-           current_vertex = &self.v_positions[i];
-           let x_min_comp = current_vertex.x.partial_cmp(&min_x);
-           if assert_eq!(x_min_comp, Some(Ordering::Less)){
-               min_x = current_vertex.x;
-           }
-           else{
-               min_x = min_x;
-           }
-        }   
-        let min: Vector3<T> = Vector3::<T>{ x : min_x, y : min_y, z : min_z };
-        let max: Vector3<T> = Vector3::<T>{ x : max_x, y : max_y, z : max_z };
-        (min, max)
+        return BoundingBox { min_x, min_y, min_z, max_x, max_y, max_z }
     }
+}
+
+fn get_vec_min_max<T: PartialOrd>(elements: &Vec<T>) -> (T, T) {
+    let mut min = elements[0];
+    let mut max = elements[0];
+    for element in elements{
+        match element.partial_cmp(&min) {
+            Some(Ordering::Less) => min = *element,
+            _ => (),
+        }
+        match element.partial_cmp(&max) {
+            Some(Ordering::Greater) => max = *element,
+            _ => (),
+        }
+    }
+    (min, max)
 }
