@@ -27,6 +27,32 @@ pub struct Mesh<T: PartialOrd + Copy> {
     pub triangles: Vec<Triangle>,
 }
 
+pub struct Coords3D<T: PartialOrd + Copy> {
+    pub xs: Vec<T>,
+    pub ys: Vec<T>,
+    pub zs: Vec<T>,
+}
+
+pub struct Coords2D<T: PartialOrd + Copy> {
+    pub us: Vec<T>,
+    pub vs: Vec<T>,
+}
+
+impl <T: PartialOrd + Copy> Coords3D<T> {
+    pub fn add_vector(&mut self, x: T, y: T, z: T){
+        self.xs.push(x);
+        self.ys.push(y);
+        self.zs.push(z);
+    }
+}
+
+impl <T: PartialOrd + Copy> Coords2D<T> {
+    pub fn add_vector(&mut self, u: T, v: T) {
+        self.us.push(u);
+        self.vs.push(v);
+    }
+}
+
 impl<T: PartialOrd + Copy> Mesh<T> {
 
      fn bounding_box(&self) -> (Vector3<T>, Vector3<T>){
