@@ -65,7 +65,7 @@ impl<T: PartialOrd + Copy> Mesh<T> {
     }
 }
 
-fn get_vec_min_max<T: PartialOrd>(elements: &Vec<T>) -> (T, T) {
+fn get_vec_min_max<T: PartialOrd + Copy>(elements: &Vec<T>) -> (T, T) {
     let mut min = elements[0];
     let mut max = elements[0];
     for element in elements{
