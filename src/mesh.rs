@@ -15,9 +15,9 @@ pub struct Coords2D<T: PartialOrd + Copy> {
 
 #[derive(Copy, Clone, Debug)]
 pub struct Triangle {
-    pub a: usize,
-    pub b: usize,
-    pub c: usize,
+    pub vertices: [usize; 3],
+    pub normals: [usize; 3],
+    pub textures: [usize; 3],
 }
 
 #[derive(Clone, Debug)]
