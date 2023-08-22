@@ -22,7 +22,7 @@ pub struct Triangle {
 
 #[derive(Clone, Debug)]
 pub struct Mesh<T: PartialOrd + Copy> {
-    pub v_positions: Coords3D<T>, 
+    pub v_positions: Coords3D<T>,
     pub v_normals: Coords3D<T>,
     pub v_textures: Coords2D<T>,
     pub triangles: Vec<Triangle>,
@@ -38,15 +38,15 @@ pub struct BoundingBox<T: PartialOrd + Copy> {
     pub max_z: T,
 }
 
-impl <T: PartialOrd + Copy> Coords3D<T> {
-    pub fn add_vector(&mut self, x: T, y: T, z: T){
+impl<T: PartialOrd + Copy> Coords3D<T> {
+    pub fn add_vector(&mut self, x: T, y: T, z: T) {
         self.xs.push(x);
         self.ys.push(y);
         self.zs.push(z);
     }
 }
 
-impl <T: PartialOrd + Copy> Coords2D<T> {
+impl<T: PartialOrd + Copy> Coords2D<T> {
     pub fn add_vector(&mut self, u: T, v: T) {
         self.us.push(u);
         self.vs.push(v);
@@ -54,21 +54,26 @@ impl <T: PartialOrd + Copy> Coords2D<T> {
 }
 
 impl<T: PartialOrd + Copy> Mesh<T> {
-
-    fn bounding_box(&self) -> BoundingBox<T>{
-
+    fn bounding_box(&self) -> BoundingBox<T> {
         let (min_x, max_x) = get_vec_min_max(&self.v_positions.xs);
         let (min_y, max_y) = get_vec_min_max(&self.v_positions.ys);
         let (min_z, max_z) = get_vec_min_max(&self.v_positions.zs);
 
-        return BoundingBox { min_x, min_y, min_z, max_x, max_y, max_z }
+        return BoundingBox {
+            min_x,
+            min_y,
+            min_z,
+            max_x,
+            max_y,
+            max_z,
+        };
     }
 }
 
 fn get_vec_min_max<T: PartialOrd + Copy>(elements: &Vec<T>) -> (T, T) {
     let mut min = elements[0];
     let mut max = elements[0];
-    for element in elements{
+    for element in elements {
         match element.partial_cmp(&min) {
             Some(Ordering::Less) => min = *element,
             _ => (),

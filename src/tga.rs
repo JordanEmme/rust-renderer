@@ -1,4 +1,10 @@
-use std::{fmt, io::{self, prelude::*}, iter::Iterator, ops::Shl, slice::Iter};
+use std::{
+    fmt,
+    io::{self, prelude::*},
+    iter::Iterator,
+    ops::Shl,
+    slice::Iter,
+};
 
 pub trait ColorSpace {
     fn new() -> Self;
@@ -8,7 +14,7 @@ pub trait ColorSpace {
 #[derive(Copy, Clone, Debug)]
 #[repr(packed)]
 pub struct Grayscale {
-    pub i: u8
+    pub i: u8,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -44,7 +50,12 @@ impl ColorSpace for Rgb {
 
 impl ColorSpace for Rgba {
     fn new() -> Self {
-        Rgba { b: 0, g: 0, r: 0, a: 0 }
+        Rgba {
+            b: 0,
+            g: 0,
+            r: 0,
+            a: 0,
+        }
     }
     const BPP: u8 = 4;
 }
@@ -75,7 +86,7 @@ unsafe fn any_as_u8_slice<T: Sized>(p: &T) -> &[u8] {
 }
 
 struct PixelsIter<'a, T: ColorSpace> {
-    iter: Iter<'a, T>
+    iter: Iter<'a, T>,
 }
 
 impl<'a, T: ColorSpace> Iterator for PixelsIter<'a, T> {
@@ -133,8 +144,12 @@ impl<T: ColorSpace + Copy> Image<T> {
             .collect::<Vec<u8>>()
     }
 
-
-    pub fn write<W: io::Write>(&self, writer: &mut io::BufWriter<W>, vflip: bool, rle: bool) -> io::Result<()> {
+    pub fn write<W: io::Write>(
+        &self,
+        writer: &mut io::BufWriter<W>,
+        vflip: bool,
+        rle: bool,
+    ) -> io::Result<()> {
         let header = Header {
             idlength: 0,
             bitsperpixel: T::BPP.shl(3),
@@ -142,9 +157,17 @@ impl<T: ColorSpace + Copy> Image<T> {
             height: self.height,
             colormaptype: 0,
             datatypecode: if T::BPP == Grayscale::BPP {
-                if rle { 9 } else { 3 }
+                if rle {
+                    9
+                } else {
+                    3
+                }
             } else {
-                if rle { 10 } else { 2 }
+                if rle {
+                    10
+                } else {
+                    2
+                }
             },
             imagedescriptor: if vflip { 0 } else { 0x20 },
             ..Default::default()
