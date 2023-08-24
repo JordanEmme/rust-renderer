@@ -1,16 +1,17 @@
 use std::cmp::Ordering;
+use super::bounding_box;
 
 #[derive(Clone, Debug)]
-pub struct Coords3D<T: PartialOrd + Copy> {
-    pub xs: Vec<T>,
-    pub ys: Vec<T>,
-    pub zs: Vec<T>,
+pub struct Coords3D {
+    pub xs: Vec<f32>,
+    pub ys: Vec<f32>,
+    pub zs: Vec<f32>,
 }
 
 #[derive(Clone, Debug)]
-pub struct Coords2D<T: PartialOrd + Copy> {
-    pub us: Vec<T>,
-    pub vs: Vec<T>,
+pub struct Coords2D {
+    pub us: Vec<f32>,
+    pub vs: Vec<f32>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -21,40 +22,30 @@ pub struct Triangle {
 }
 
 #[derive(Clone, Debug)]
-pub struct Mesh<T: PartialOrd + Copy> {
-    pub v_positions: Coords3D<T>,
-    pub v_normals: Coords3D<T>,
-    pub v_textures: Coords2D<T>,
+pub struct Mesh {
+    pub v_positions: Coords3D,
+    pub v_normals: Coords3D,
+    pub v_textures: Coords2D,
     pub triangles: Vec<Triangle>,
 }
 
-#[derive(Copy, Clone, Debug)]
-pub struct BoundingBox<T: PartialOrd + Copy> {
-    pub min_x: T,
-    pub min_y: T,
-    pub min_z: T,
-    pub max_x: T,
-    pub max_y: T,
-    pub max_z: T,
-}
-
-impl<T: PartialOrd + Copy> Coords3D<T> {
-    pub fn add_vector(&mut self, x: T, y: T, z: T) {
+impl Coords3D {
+    pub fn add_vector(&mut self, x: f32, y: f32, z: f32) {
         self.xs.push(x);
         self.ys.push(y);
         self.zs.push(z);
     }
 }
 
-impl<T: PartialOrd + Copy> Coords2D<T> {
-    pub fn add_vector(&mut self, u: T, v: T) {
+impl Coords2D {
+    pub fn add_vector(&mut self, u: f32, v: f32) {
         self.us.push(u);
         self.vs.push(v);
     }
 }
 
-impl<T: PartialOrd + Copy> Mesh<T> {
-    fn bounding_box(&self) -> BoundingBox<T> {
+impl Mesh {
+    pub fn bounding_box(&self) -> BoundingBox {
         let (min_x, max_x) = get_vec_min_max(&self.v_positions.xs);
         let (min_y, max_y) = get_vec_min_max(&self.v_positions.ys);
         let (min_z, max_z) = get_vec_min_max(&self.v_positions.zs);
@@ -70,7 +61,7 @@ impl<T: PartialOrd + Copy> Mesh<T> {
     }
 }
 
-fn get_vec_min_max<T: PartialOrd + Copy>(elements: &Vec<T>) -> (T, T) {
+fn get_vec_min_max(elements: &Vec<f32>) -> (f32, f32) {
     let mut min = elements[0];
     let mut max = elements[0];
     for element in elements {

@@ -1,22 +1,20 @@
 use super::mesh;
 use std::{fs, str};
 
-const OBJ_PATH: &str = "assets/input.obj";
+pub fn obj_to_mesh(obj_path: &str) -> mesh::Mesh {
+    let obj_content = fs::read_to_string(obj_path).expect("Cannot read from the obj file.");
 
-pub fn obj_to_mesh() -> mesh::Mesh<f32> {
-    let obj_content = fs::read_to_string(OBJ_PATH).expect("Cannot read from the obj file.");
-
-    let mut v_positions: mesh::Coords3D<f32> = mesh::Coords3D {
+    let mut v_positions: mesh::Coords3D = mesh::Coords3D {
         xs: Vec::new(),
         ys: Vec::new(),
         zs: Vec::new(),
     };
-    let mut v_normals: mesh::Coords3D<f32> = mesh::Coords3D {
+    let mut v_normals: mesh::Coords3D = mesh::Coords3D {
         xs: Vec::new(),
         ys: Vec::new(),
         zs: Vec::new(),
     };
-    let mut v_textures: mesh::Coords2D<f32> = mesh::Coords2D {
+    let mut v_textures: mesh::Coords2D = mesh::Coords2D {
         us: Vec::new(),
         vs: Vec::new(),
     };
@@ -43,7 +41,7 @@ pub fn obj_to_mesh() -> mesh::Mesh<f32> {
 }
 
 fn add_3d_coords(
-    to_add_to: &mut mesh::Coords3D<f32>,
+    to_add_to: &mut mesh::Coords3D,
     string_num_iterator: &mut str::SplitWhitespace<'_>,
 ) {
     for i in 0..3usize {
@@ -64,7 +62,7 @@ fn add_3d_coords(
 }
 
 fn add_2d_coords(
-    to_add_to: &mut mesh::Coords2D<f32>,
+    to_add_to: &mut mesh::Coords2D,
     string_num_iterator: &mut str::SplitWhitespace<'_>,
 ) {
     for i in 0..2usize {
@@ -99,9 +97,9 @@ fn add_triangle(
                 for j in 0..3usize {
                     let coord: usize = coords[j].parse::<usize>().unwrap();
                     match j {
-                        0 => vertices[i] = coord,
-                        1 => textures[i] = coord,
-                        2 => normals[i] = coord,
+                        0 => vertices[i] = coord - 1,
+                        1 => textures[i] = coord - 1,
+                        2 => normals[i] = coord - 1,
                         _ => {}
                     }
                 }
