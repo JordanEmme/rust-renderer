@@ -16,9 +16,9 @@ pub fn line(x0: u16, y0: u16, x1: u16, y1: u16, img: &mut tga::Image<tga::Rgb>, 
         (start_x, end_x) = (end_x, start_x);
         (start_y, end_y) = (end_y, start_y);
     }
-    let dx: u32 = (end_x - start_x) as u32;
-    let derror2: u32 = end_y.abs_diff(start_y) as u32 * 2;
-    let mut error2: u32 = 0u32;
+    let dx: i32 = (end_x - start_x).into();
+    let derror2: i32 = (end_y.abs_diff(start_y) * 2).into();
+    let mut error2: i32 = 0i32;
     let mut y: u16 = start_y;
     for x in start_x..end_x {
         if transposed {

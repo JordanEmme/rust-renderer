@@ -22,10 +22,10 @@ fn main() {
     let mesh: mesh::Mesh = obj_importer::obj_to_mesh(OBJ_PATH);
     let mut bounding_box: bounding_box::BoundingBox = mesh.bounding_box();
     bounding_box.pad(10f32);
-    let (width, height): (f32, f32) = camera_box(&bounding_box);
+    let (_width, _height): (f32, f32) = camera_box(&bounding_box);
 
     let mut img: tga::Image<tga::Rgb> = tga::Image::<tga::Rgb>::new(WIDTH, HEIGHT);
-    line_drawer::line(0, 0, 9, 9, &mut img, WHITE);
+    line_drawer::line(0, 10, 100, 9, &mut img, WHITE);
 
     //    let mut img = tga::Image::<tga::Rgb>::new(10, 10);
     //    let _ = img.set(0, 0, RED);

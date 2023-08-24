@@ -45,12 +45,12 @@ impl Coords2D {
 }
 
 impl Mesh {
-    pub fn bounding_box(&self) -> BoundingBox {
+    pub fn bounding_box(&self) -> bounding_box::BoundingBox {
         let (min_x, max_x) = get_vec_min_max(&self.v_positions.xs);
         let (min_y, max_y) = get_vec_min_max(&self.v_positions.ys);
         let (min_z, max_z) = get_vec_min_max(&self.v_positions.zs);
 
-        return BoundingBox {
+        return bounding_box::BoundingBox {
             min_x,
             min_y,
             min_z,
