@@ -21,7 +21,7 @@ const OBJ_PATH: &str = "assets/input.obj";
 fn main() {
     let mesh: mesh::Mesh = obj_importer::obj_to_mesh(OBJ_PATH);
     let mut bounding_box: bounding_box::BoundingBox = mesh.bounding_box();
-    bounding_box.pad(200f32);
+    bounding_box.pad(10f32);
     let (camera_min, camera_max): ((f32, f32), (f32, f32)) = camera_box(&bounding_box);
 
     let mesh_img: tga::Image<tga::Rgb> = create_mesh_wireframe(mesh, camera_min, camera_max);
@@ -33,7 +33,7 @@ fn main() {
 
 fn camera_box(bounding_box: &bounding_box::BoundingBox) -> ((f32, f32), (f32, f32)) {
     let mut width: f32 = bounding_box.max_x - bounding_box.min_x;
-    let mut height: f32 = bounding_box.max_x - bounding_box.min_x;
+    let mut height: f32 = bounding_box.max_y - bounding_box.min_y;
     let ratio: f32 = (WIDTH as f32) / (HEIGHT as f32);
     let mesh_is_wide: bool = width / (height * ratio) > 1f32;
 
