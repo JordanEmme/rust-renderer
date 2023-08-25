@@ -20,8 +20,9 @@ const OBJ_PATH: &str = "assets/input.obj";
 
 fn main() {
     let mesh: mesh::Mesh = obj_importer::obj_to_mesh(OBJ_PATH);
-    let mut bounding_box: bounding_box::BoundingBox = mesh.bounding_box();
-    bounding_box.pad(10f32);
+    let bounding_box: bounding_box::BoundingBox = mesh.bounding_box();
+    // let mut bounding_box: bounding_box::BoundingBox = mesh.bounding_box();
+    // bounding_box.pad(10f32);
     let (camera_min, camera_max): ((f32, f32), (f32, f32)) = camera_box(&bounding_box);
 
     let mesh_img: tga::Image<tga::Rgb> = create_mesh_wireframe(mesh, camera_min, camera_max);
@@ -65,8 +66,8 @@ fn create_mesh_wireframe(
     let min_y: f32 = camera_min.1;
     let box_width: f32 = camera_max.0 - min_x;
     let box_height: f32 = camera_max.1 - min_y;
-    let width_renorm: f32 = WIDTH as f32 / box_width;
-    let height_renorm: f32 = HEIGHT as f32 / box_height;
+    let width_renorm: f32 = (WIDTH - 1) as f32 / box_width;
+    let height_renorm: f32 = (HEIGHT - 1) as f32 / box_height;
     mesh.triangles.into_iter().for_each(|triangle| {
         for i in 0..3usize {
             vertex_buffer_x[i] =
