@@ -1,5 +1,5 @@
-use std::cmp::Ordering;
 use super::bounding_box;
+use std::cmp::Ordering;
 
 #[derive(Clone, Debug)]
 pub struct Coords3D {

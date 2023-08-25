@@ -19,5 +19,3 @@ impl BoundingBox {
         self.max_z *= total_percentage;
     }
 }
-
-

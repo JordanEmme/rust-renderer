@@ -1,8 +1,8 @@
+pub mod bounding_box;
 pub mod line_drawer;
 pub mod mesh;
 pub mod obj_importer;
 pub mod tga;
-pub mod bounding_box;
 
 use std::fs::File;
 use std::io::BufWriter;
@@ -24,15 +24,11 @@ fn main() {
     bounding_box.pad(10f32);
     let (_width, _height): (f32, f32) = camera_box(&bounding_box);
 
-    let mut img: tga::Image<tga::Rgb> = tga::Image::<tga::Rgb>::new(WIDTH, HEIGHT);
-    line_drawer::line(0, 10, 100, 9, &mut img, WHITE);
-
-    //    let mut img = tga::Image::<tga::Rgb>::new(10, 10);
-    //    let _ = img.set(0, 0, RED);
+    let mesh_img: tga::Image<tga::Rgb> = create_mesh_wireframe(mesh, bounding_box);
 
     let output_filename: &str = "output.tga";
     let mut writer: BufWriter<File> = BufWriter::new(File::create(output_filename).unwrap());
-    img.write(&mut writer, true, false).unwrap();
+    mesh_img.write(&mut writer, true, false).unwrap();
 }
 
 fn camera_box(bounding_box: &bounding_box::BoundingBox) -> (f32, f32) {
@@ -47,10 +43,43 @@ fn camera_box(bounding_box: &bounding_box::BoundingBox) -> (f32, f32) {
         width = height * ratio;
     }
 
-    // add some padding for aesthetics and avoid overflowing the image with
-    // integer coordinates
-    width *= 1.05f32;
-    height *= 1.05f32;
-
     (width, height)
+}
+
+fn create_mesh_wireframe(
+    mesh: mesh::Mesh,
+    bounding_box: bounding_box::BoundingBox,
+) -> tga::Image<tga::Rgb> {
+    let mut mesh_img: tga::Image<tga::Rgb> = tga::Image::new(WIDTH, HEIGHT);
+
+    let mut vertex_buffer_x = [0u16; 3];
+    let mut vertex_buffer_y = [0u16; 3];
+
+    let min_x: f32 = bounding_box.min_x;
+    let min_y: f32 = bounding_box.min_x;
+    let box_width: f32 = bounding_box.max_x - min_x;
+    let box_height: f32 = bounding_box.max_y - min_y;
+    let width_renorm: f32 = WIDTH as f32 / box_width;
+    let height_renorm: f32 = HEIGHT as f32 / box_height;
+    mesh.triangles.into_iter().for_each(|triangle| {
+        for i in 0..2usize {
+            vertex_buffer_x[i] =
+                (width_renorm * (mesh.v_positions.xs[triangle.vertices[i]] - min_x)).floor() as u16;
+            vertex_buffer_y[i] = (height_renorm
+                * (mesh.v_positions.ys[triangle.vertices[i]] - min_y))
+                .floor() as u16;
+        }
+        for i in 0..2usize {
+            line_drawer::line(
+                vertex_buffer_x[i],
+                vertex_buffer_y[i],
+                vertex_buffer_x[(i + 1).rem_euclid(3)],
+                vertex_buffer_y[(i + 1).rem_euclid(3)],
+                &mut mesh_img,
+                WHITE,
+            );
+        }
+    });
+
+    return mesh_img;
 }
