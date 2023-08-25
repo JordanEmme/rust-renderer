@@ -28,7 +28,7 @@ pub fn obj_to_mesh(obj_path: &str) -> mesh::Mesh {
             Some("vn") => add_3d_coords(&mut v_normals, &mut split),
             Some("vt") => add_2d_coords(&mut v_textures, &mut split),
             Some("f") => add_triangle(&mut triangles, &mut split),
-            _ => break,
+            _ => (),
         }
     }
 
