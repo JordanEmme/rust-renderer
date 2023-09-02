@@ -1,5 +1,6 @@
 pub mod bounding_box;
-pub mod line_drawer;
+pub mod drawers;
+pub mod linalg;
 pub mod mesh;
 pub mod obj_importer;
 pub mod tga;
@@ -77,7 +78,7 @@ fn create_mesh_wireframe(
                 .floor() as u16;
         }
         for i in 0..3usize {
-            line_drawer::line(
+            drawers::line(
                 vertex_buffer_x[i],
                 vertex_buffer_y[i],
                 vertex_buffer_x[(i + 1).rem_euclid(3)],
