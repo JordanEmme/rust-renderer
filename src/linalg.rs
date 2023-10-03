@@ -51,10 +51,9 @@ pub fn point_is_in_rast_triangle(point: (u16, u16), a: (u16, u16), b: (u16, u16)
 }
 
 pub fn point_barycentric_coord_in_rast_triangle(point: (u16, u16), a: (u16, u16), b: (u16, u16), c: (u16, u16)) -> (f32, f32, f32) {
-    let v_a: (f32, f32, f32) = ((a.0 - point.0) as f32, (a.1 - point.1) as f32, 0f32);
-    let v_b: (f32, f32, f32) = ((b.0 - point.0) as f32, (b.1 - point.1) as f32, 0f32);
-    let v_c: (f32, f32, f32) = ((c.0 - point.0) as f32, (c.1 - point.1) as f32, 0f32);
-    let cross1: (f32, f32, f32) = cross_product(v_a, v_b);
-    let cross2: (f32, f32, f32) = cross_product(v_b, v_c);
-    
+   let abc_area: f32 = triangle_area(a, b, c);
+   let norm_pab_area: f32 = triangle_area(point, a, c) / abc_area;
+   let norm_pbc_area: f32 = triangle_area(point, b, c) / abc_area;
+   let norm_pca_area: f32 = triangle_area(point, a, c) / abc_area;
+   return (norm_pbc_area, norm_pca_area, norm_pab_area);
 }
