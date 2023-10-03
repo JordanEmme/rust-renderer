@@ -33,11 +33,28 @@ pub fn get_plane_normal(
     return cross_product(vec1, vec2);
 }
 
-pub fn point_is_in_triangle(point: (u16, u16), a: (u16, u16), b: (u16, u16), c: (u16, u16)) -> bool {
+// Assuming a, b, and c appear in a direct/clockwise order
+pub fn triangle_area(a: (u16, u16), b: (u16, u16), c:(u16, u16)) -> f32 {
+   let v_ca: (f32, f32, f32) = ((a.0 - c.0) as f32, (a.1 - c.1) as f32, 0f32);
+   let v_cb: (f32, f32, f32) = ((b.0 - c.0) as f32, (b.1 - c.1) as f32, 0f32);
+   let cross: (f32, f32, f32) = cross_product(v_ca, v_cb);
+   return cross.2 / 2f32;
+}
+
+pub fn point_is_in_rast_triangle(point: (u16, u16), a: (u16, u16), b: (u16, u16), c: (u16, u16)) -> bool {
     let v_a: (f32, f32, f32) = ((a.0 - point.0) as f32, (a.1 - point.1) as f32, 0f32);
     let v_b: (f32, f32, f32) = ((b.0 - point.0) as f32, (b.1 - point.1) as f32, 0f32);
     let v_c: (f32, f32, f32) = ((c.0 - point.0) as f32, (c.1 - point.1) as f32, 0f32);
     let cross1: (f32, f32, f32) = cross_product(v_a, v_b);
     let cross2: (f32, f32, f32) = cross_product(v_b, v_c);
     return cross1.2 * cross2.2 >= 0f32;
+}
+
+pub fn point_barycentric_coord_in_rast_triangle(point: (u16, u16), a: (u16, u16), b: (u16, u16), c: (u16, u16)) -> (f32, f32, f32) {
+    let v_a: (f32, f32, f32) = ((a.0 - point.0) as f32, (a.1 - point.1) as f32, 0f32);
+    let v_b: (f32, f32, f32) = ((b.0 - point.0) as f32, (b.1 - point.1) as f32, 0f32);
+    let v_c: (f32, f32, f32) = ((c.0 - point.0) as f32, (c.1 - point.1) as f32, 0f32);
+    let cross1: (f32, f32, f32) = cross_product(v_a, v_b);
+    let cross2: (f32, f32, f32) = cross_product(v_b, v_c);
+    
 }
