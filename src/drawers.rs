@@ -1,3 +1,5 @@
+use crate::bounding_box;
+
 use super::mesh::{Coords2D, Coords3D, Mesh, Triangle};
 use super::tga;
 
@@ -46,4 +48,6 @@ pub fn triangle(
     color: tga::Rgb,
 ) {
     let triangle: &Triangle = &mesh.triangles[triangle_index];
+    let triangle_box = triangle.bounding_box(&mesh.v_positions);
+
 }

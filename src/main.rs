@@ -26,7 +26,7 @@ fn main() {
     // bounding_box.pad(10f32);
     let (camera_min, camera_max): ((f32, f32), (f32, f32)) = camera_box(&bounding_box);
 
-    let mesh_img: tga::Image<tga::Rgb> = create_mesh_wireframe(mesh, camera_min, camera_max);
+    let mesh_img: tga::Image<tga::Rgb> = draw_mesh_wireframe(mesh, camera_min, camera_max);
 
     let output_filename: &str = "output.tga";
     let mut writer: BufWriter<File> = BufWriter::new(File::create(output_filename).unwrap());
@@ -53,7 +53,7 @@ fn camera_box(bounding_box: &bounding_box::BoundingBox) -> ((f32, f32), (f32, f3
     (camera_min, camera_max)
 }
 
-fn create_mesh_wireframe(
+fn draw_mesh_wireframe(
     mesh: mesh::Mesh,
     camera_min: (f32, f32),
     camera_max: (f32, f32),
@@ -92,3 +92,28 @@ fn create_mesh_wireframe(
     return mesh_img;
 }
 
+fn draw_mesh(
+    mesh: mesh::Mesh,
+    camera_min: (f32, f32),
+    camera_max: (f32, f32),
+) -> tga::Image<tga::Rgb> {
+    let mut mesh_img: tga::Image<tga::Rgb> = tga::Image::new(WIDTH, HEIGHT);
+    
+    let mut vertex_buffer_x = [0u16; 3];
+    let mut vertex_buffer_y = [0u16; 3];
+
+    let min_x: f32 = camera_min.0;
+    let min_y: f32 = camera_min.1;
+    let box_width: f32 = camera_max.0 - min_x;
+    let box_height: f32 = camera_max.1 - min_y;
+    let width_renorm: f32 = (WIDTH - 1) as f32 / box_width;
+    let height_renorm: f32 = (HEIGHT - 1) as f32 / box_height;
+
+    mesh.triangles.into_iter().for_each(|triangle| {
+        let bounding_box = triangle.bounding_box(&mesh.v_positions); 
+
+        
+    });
+    return mesh_img;
+
+}
