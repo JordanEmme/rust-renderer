@@ -1,3 +1,5 @@
+use rand::Rng;
+
 pub mod bounding_box;
 pub mod drawers;
 pub mod linalg;
@@ -120,9 +122,10 @@ fn draw_mesh(
                 .get_at_in_projective_space(triangle.vertices[i], observer_distance);
             vertex_buffer_x[i] = (width_renorm * (x - min_x)).floor() as u16;
             vertex_buffer_y[i] = (height_renorm * (y - min_y)).floor() as u16;
-            let tga_bounding_box: BoundingBox2D = BoundingBox2D::get_bounding_box(&vertex_buffer_x, &vertex_buffer_y);
+
         }
-        let bounding_box = triangle.bounding_box(&mesh.v_positions);
+
+        let tga_bounding_box: BoundingBox2D = BoundingBox2D::get_bounding_box(&vertex_buffer_x, &vertex_buffer_y);
     });
     return mesh_img;
 }
