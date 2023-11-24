@@ -1,12 +1,15 @@
 pub mod bounding_box;
 pub mod drawers;
 pub mod linalg;
+pub mod maths_utils;
 pub mod mesh;
 pub mod obj_importer;
 pub mod tga;
 
 use std::fs::File;
 use std::io::BufWriter;
+
+use bounding_box::{BoundingBox3D, BoundingBox2D};
 
 const WHITE: tga::Rgb = tga::Rgb {
     r: 255,
@@ -21,7 +24,7 @@ const OBJ_PATH: &str = "assets/input.obj";
 
 fn main() {
     let mesh: mesh::Mesh = obj_importer::obj_to_mesh(OBJ_PATH);
-    let bounding_box: bounding_box::BoundingBox = mesh.bounding_box();
+    let bounding_box: bounding_box::BoundingBox3D = mesh.bounding_box();
     // let mut bounding_box: bounding_box::BoundingBox = mesh.bounding_box();
     // bounding_box.pad(10f32);
     let (camera_min, camera_max): ((f32, f32), (f32, f32)) = camera_box(&bounding_box);
@@ -33,7 +36,7 @@ fn main() {
     mesh_img.write(&mut writer, true, false).unwrap();
 }
 
-fn camera_box(bounding_box: &bounding_box::BoundingBox) -> ((f32, f32), (f32, f32)) {
+fn camera_box(bounding_box: &bounding_box::BoundingBox3D) -> ((f32, f32), (f32, f32)) {
     let mut width: f32 = bounding_box.max_x - bounding_box.min_x;
     let mut height: f32 = bounding_box.max_y - bounding_box.min_y;
     let ratio: f32 = (WIDTH as f32) / (HEIGHT as f32);
@@ -96,9 +99,10 @@ fn draw_mesh(
     mesh: mesh::Mesh,
     camera_min: (f32, f32),
     camera_max: (f32, f32),
+    observer_distance: f32,
 ) -> tga::Image<tga::Rgb> {
     let mut mesh_img: tga::Image<tga::Rgb> = tga::Image::new(WIDTH, HEIGHT);
-    
+
     let mut vertex_buffer_x = [0u16; 3];
     let mut vertex_buffer_y = [0u16; 3];
 
@@ -110,10 +114,15 @@ fn draw_mesh(
     let height_renorm: f32 = (HEIGHT - 1) as f32 / box_height;
 
     mesh.triangles.into_iter().for_each(|triangle| {
-        let bounding_box = triangle.bounding_box(&mesh.v_positions); 
-
-        
+        for i in 0..3usize {
+            let (x, y): (f32, f32) = mesh
+                .v_positions
+                .get_at_in_projective_space(triangle.vertices[i], observer_distance);
+            vertex_buffer_x[i] = (width_renorm * (x - min_x)).floor() as u16;
+            vertex_buffer_y[i] = (height_renorm * (y - min_y)).floor() as u16;
+            let tga_bounding_box: BoundingBox2D = BoundingBox2D::get_bounding_box(&vertex_buffer_x, &vertex_buffer_y);
+        }
+        let bounding_box = triangle.bounding_box(&mesh.v_positions);
     });
     return mesh_img;
-
 }

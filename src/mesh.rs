@@ -59,12 +59,12 @@ impl Coords2D {
 }
 
 impl Mesh {
-    pub fn bounding_box(&self) -> bounding_box::BoundingBox {
+    pub fn bounding_box(&self) -> bounding_box::BoundingBox3D {
         let (min_x, max_x) = get_vec_min_max(&self.v_positions.xs);
         let (min_y, max_y) = get_vec_min_max(&self.v_positions.ys);
         let (min_z, max_z) = get_vec_min_max(&self.v_positions.zs);
 
-        return bounding_box::BoundingBox {
+        return bounding_box::BoundingBox3D {
             min_x,
             min_y,
             min_z,
@@ -96,7 +96,7 @@ impl Triangle {
         return (x_min, x_max, y_min, y_max);
     }
 
-    pub fn bounding_box(&self, positions: &Coords3D) -> bounding_box::BoundingBox {
+    pub fn bounding_box(&self, positions: &Coords3D) -> bounding_box::BoundingBox3D {
         let (x1, y1, z1) = positions.get_at(self.vertices[0]);
         let (x2, y2, z2) = positions.get_at(self.vertices[1]);
         let (x3, y3, z3) = positions.get_at(self.vertices[2]);
@@ -104,7 +104,7 @@ impl Triangle {
         let (min_y, max_y) = get_vec_min_max(&vec![y1, y2, y3]);
         let (min_z, max_z) = get_vec_min_max(&vec![z1, z2, z3]);
 
-        return bounding_box::BoundingBox {
+        return bounding_box::BoundingBox3D {
             min_x,
             min_y,
             min_z,
