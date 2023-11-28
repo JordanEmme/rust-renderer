@@ -30,7 +30,7 @@ pub fn get_plane_normal(
 ) -> (f32, f32, f32) {
     let vec1: (f32, f32, f32) = (v.0 - w.0, v.1 - w.1, v.2 - w.2);
     let vec2: (f32, f32, f32) = (v.0 - u.0, v.1 - u.1, v.2 - u.2);
-    return cross_product(vec1, vec2);
+    return normalized(cross_product(vec1, vec2));
 }
 
 // Assuming a, b, and c appear in a direct/clockwise order

@@ -1,5 +1,3 @@
-use rand::Rng;
-
 pub mod bounding_box;
 pub mod drawers;
 pub mod linalg;
@@ -11,13 +9,15 @@ pub mod tga;
 use std::fs::File;
 use std::io::BufWriter;
 
-use bounding_box::{BoundingBox3D, BoundingBox2D};
+use bounding_box::BoundingBox2D;
 
 const WHITE: tga::Rgb = tga::Rgb {
     r: 255,
     g: 255,
     b: 255,
 };
+
+const LIGHT_DIRECTION: (f32, f32, f32) = (0f32, 0f32, -1f32);
 
 const WIDTH: u16 = 1920;
 const HEIGHT: u16 = 1080;
@@ -31,7 +31,7 @@ fn main() {
     // bounding_box.pad(10f32);
     let (camera_min, camera_max): ((f32, f32), (f32, f32)) = camera_box(&bounding_box);
 
-    let mesh_img: tga::Image<tga::Rgb> = draw_mesh_wireframe(mesh, camera_min, camera_max);
+    let mesh_img: tga::Image<tga::Rgb> = draw_mesh(mesh, camera_min, camera_max, 3f32);
 
     let output_filename: &str = "output.tga";
     let mut writer: BufWriter<File> = BufWriter::new(File::create(output_filename).unwrap());
@@ -126,6 +126,20 @@ fn draw_mesh(
         }
 
         let tga_bounding_box: BoundingBox2D = BoundingBox2D::get_bounding_box(&vertex_buffer_x, &vertex_buffer_y);
-    });
+        let triangle_normal = linalg::get_plane_normal(mesh.v_positions.get_at(triangle.vertices[0]), mesh.v_positions.get_at(triangle.vertices[1]), mesh.v_positions.get_at(triangle.vertices[2]));
+        let intensity: f32 = linalg::dot_product(triangle_normal, LIGHT_DIRECTION);                      
+        let shade: u8 = (intensity * 255f32).max(0f32) as u8;
+        let colour = tga::Rgb {r: shade, g: shade, b: shade}; 
+        for u in tga_bounding_box.min_u..=tga_bounding_box.max_u{
+            for v in tga_bounding_box.min_v..=tga_bounding_box.max_v{
+                 if linalg::point_is_in_rast_triangle((u,v), 
+                                                      (vertex_buffer_x[0], vertex_buffer_y[0]), 
+                                                      (vertex_buffer_x[1], vertex_buffer_y[1]), 
+                                                      (vertex_buffer_x[2], vertex_buffer_y[2])){
+                    let _ = mesh_img.set(u,v,colour); 
+                }
+        }
+ 
+        }});
     return mesh_img;
 }
