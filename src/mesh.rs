@@ -40,10 +40,11 @@ impl Coords3D {
         return (self.xs[i], self.ys[i], self.zs[i]);
     }
 
-    pub fn get_at_in_projective_space(&self, i: usize, observer_distance: f32) -> (f32, f32) {
+    pub fn get_at_in_projective_space(&self, i: usize, observer_distance: f32, focal_length: f32) -> (f32, f32) {
         let (x, y, z): (f32, f32, f32) = self.get_at(i);
-        let t: f32 = 1. / (1. - (z / observer_distance));
-        return (t * x, t * y);
+        // let t: f32 = focal_length / (observer_distance - z);
+        // return (t * x, t * y);
+        (x,y)
     }
 }
 
@@ -80,6 +81,7 @@ impl Triangle {
         &self,
         positions: &Coords3D,
         observer_distance: f32,
+        focal_length: f32,
     ) -> (f32, f32, f32, f32) {
         let mut x_min: f32 = f32::MIN;
         let mut x_max: f32 = f32::MAX;
@@ -87,7 +89,7 @@ impl Triangle {
         let mut y_max: f32 = f32::MAX;
 
         self.vertices.iter().for_each(|&index| {
-            let (proj_x, proj_y) = positions.get_at_in_projective_space(index, observer_distance);
+            let (proj_x, proj_y) = positions.get_at_in_projective_space(index, observer_distance, focal_length);
             x_min = x_min.min(proj_x);
             x_max = x_max.max(proj_x);
             y_min = y_min.min(proj_y);

@@ -39,14 +39,3 @@ pub fn line(x0: u16, y0: u16, x1: u16, y1: u16, img: &mut tga::Image<tga::Rgb>, 
         }
     }
 }
-
-pub fn triangle(
-    mesh: &Mesh,
-    triangle_index: usize,
-    img: &mut tga::Image<tga::Rgb>,
-    color: tga::Rgb,
-    observer_distance: f32,
-) {
-    let triangle: &Triangle = &mesh.triangles[triangle_index];
-    let triangle_box = triangle.get_2d_bounding_box(&mesh.v_positions, observer_distance);
-}

@@ -20,7 +20,6 @@ impl BoundingBox3D {
     }
 }
 
-
 #[derive(Copy, Clone, Debug)]
 pub struct BoundingBox2D {
     pub min_u: u16,
@@ -29,12 +28,12 @@ pub struct BoundingBox2D {
     pub max_v: u16,
 }
 
-impl BoundingBox2D{
+impl BoundingBox2D {
     pub fn get_bounding_box(triangle_u: &[u16; 3], triangle_v: &[u16; 3]) -> Self {
-        let mut min_u = 0u16;
-        let mut min_v = 0u16;
-        let mut max_u = u16::MAX;
-        let mut max_v = u16::MAX;
+        let mut min_u: u16 = u16::MAX;
+        let mut min_v: u16 = u16::MAX;
+        let mut max_u: u16 = 0;
+        let mut max_v: u16 = 0;
         for i in 0..3usize {
             let u = triangle_u[i];
             let v = triangle_v[i];
@@ -43,6 +42,11 @@ impl BoundingBox2D{
             max_u = max_u.max(u);
             max_v = max_v.max(v);
         }
-        return BoundingBox2D { min_u, min_v, max_u, max_v }
+        return BoundingBox2D {
+            min_u,
+            min_v,
+            max_u,
+            max_v,
+        };
     }
 }
