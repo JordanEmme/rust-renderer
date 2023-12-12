@@ -1,7 +1,6 @@
 pub mod bounding_box;
 pub mod drawers;
 pub mod linalg;
-pub mod maths_utils;
 pub mod mesh;
 pub mod obj_importer;
 pub mod tga;
@@ -9,8 +8,8 @@ pub mod tga;
 use std::fs::File;
 use std::io::BufWriter;
 
-use bounding_box::BoundingBox2D;
 use crate::linalg::point_barycentric_coord_in_rast_triangle;
+use bounding_box::BoundingBox2D;
 
 const WHITE: tga::Rgb = tga::Rgb {
     r: 255,
@@ -97,9 +96,7 @@ fn draw_mesh_wireframe(
     return mesh_img;
 }
 
-fn draw_mesh(
-    mesh: mesh::Mesh,
-) -> tga::Image<tga::Rgb> {
+fn draw_mesh(mesh: mesh::Mesh) -> tga::Image<tga::Rgb> {
     let mut mesh_img: tga::Image<tga::Rgb> = tga::Image::new(WIDTH, HEIGHT);
 
     let mut vertex_buffer_x = [0u16; 3];
@@ -114,7 +111,7 @@ fn draw_mesh(
         for i in 0..3usize {
             let (x, y): (f32, f32) = mesh
                 .v_positions
-                .get_at_in_projective_space(triangle.vertices[i], OBSERVER_DISTANCE, FOCAL_LENGTH);
+                .get_at_orthonormal_projection(triangle.vertices[i]);
             vertex_buffer_x[i] = (width_renorm * (x + zoom * 16f32)).floor() as u16;
             vertex_buffer_y[i] = (height_renorm * (y + zoom * 9f32)).floor() as u16;
         }
@@ -127,21 +124,30 @@ fn draw_mesh(
             mesh.v_positions.get_at(triangle.vertices[2]),
         );
         let mut intensity: f32 = -linalg::dot_product(triangle_normal, LIGHT_DIRECTION);
-        if {intensity >= 0f32}{
-
+        if intensity >= 0f32 {
             for u in tga_bounding_box.min_u..=tga_bounding_box.max_u {
                 for v in tga_bounding_box.min_v..=tga_bounding_box.max_v {
-                    let barycentric_coords = point_barycentric_coord_in_rast_triangle((u, v),
-                                                                                     (vertex_buffer_x[0], vertex_buffer_y[0]),
-                                                                                     (vertex_buffer_x[1], vertex_buffer_y[1]),
-                                                                                     (vertex_buffer_x[2], vertex_buffer_y[2]));
+                    let barycentric_coords = point_barycentric_coord_in_rast_triangle(
+                        (u, v),
+                        (vertex_buffer_x[0], vertex_buffer_y[0]),
+                        (vertex_buffer_x[1], vertex_buffer_y[1]),
+                        (vertex_buffer_x[2], vertex_buffer_y[2]),
+                    );
                     let vertex0_normal = mesh.v_normals.get_at(triangle.normals[0]);
                     let vertex1_normal = mesh.v_normals.get_at(triangle.normals[1]);
                     let vertex2_normal = mesh.v_normals.get_at(triangle.normals[2]);
 
-                    let normal_at_point: (f32, f32, f32) = (barycentric_coords.0 * vertex0_normal.0 + barycentric_coords.1 * vertex1_normal.0 + barycentric_coords.2 * vertex2_normal.0,
-                                           barycentric_coords.0 * vertex0_normal.1 + barycentric_coords.1 * vertex1_normal.1 + barycentric_coords.2 * vertex2_normal.1,
-                                           barycentric_coords.0 * vertex0_normal.2 + barycentric_coords.1 * vertex1_normal.2 + barycentric_coords.2 * vertex2_normal.2,);
+                    let normal_at_point: (f32, f32, f32) = (
+                        barycentric_coords.0 * vertex0_normal.0
+                            + barycentric_coords.1 * vertex1_normal.0
+                            + barycentric_coords.2 * vertex2_normal.0,
+                        barycentric_coords.0 * vertex0_normal.1
+                            + barycentric_coords.1 * vertex1_normal.1
+                            + barycentric_coords.2 * vertex2_normal.1,
+                        barycentric_coords.0 * vertex0_normal.2
+                            + barycentric_coords.1 * vertex1_normal.2
+                            + barycentric_coords.2 * vertex2_normal.2,
+                    );
 
                     intensity = -linalg::dot_product(normal_at_point, LIGHT_DIRECTION);
 
@@ -162,7 +168,6 @@ fn draw_mesh(
                 }
             }
         }
-
     });
     return mesh_img;
 }

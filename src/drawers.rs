@@ -1,5 +1,3 @@
-use super::maths_utils;
-use super::mesh::{Coords2D, Coords3D, Mesh, Triangle};
 use super::tga;
 
 pub fn line(x0: u16, y0: u16, x1: u16, y1: u16, img: &mut tga::Image<tga::Rgb>, color: tga::Rgb) {
