@@ -27,7 +27,7 @@ const OBJ_PATH: &str = "assets/input.obj";
 
 fn main() {
     let mesh: mesh::Mesh = obj_importer::obj_to_mesh(OBJ_PATH);
-    let bounding_box: bounding_box::BoundingBox3D = mesh.bounding_box();
+    // let bounding_box: bounding_box::BoundingBox3D = mesh.bounding_box();
     // let mut bounding_box: bounding_box::BoundingBox = mesh.bounding_box();
     // bounding_box.pad(10f32);
     let mesh_img: tga::Image<tga::Rgb> = draw_mesh(mesh);
@@ -107,6 +107,8 @@ fn draw_mesh(mesh: mesh::Mesh) -> tga::Image<tga::Rgb> {
     let width_renorm: f32 = WIDTH as f32 / (zoom * 32f32);
     let height_renorm: f32 = HEIGHT as f32 / (zoom * 18f32);
 
+    let mut z_buffer = [f32::NEG_INFINITY;(WIDTH as u32 * HEIGHT as u32) as usize];
+
     mesh.triangles.into_iter().for_each(|triangle| {
         for i in 0..3usize {
             let (x, y): (f32, f32) = mesh
@@ -157,13 +159,24 @@ fn draw_mesh(mesh: mesh::Mesh) -> tga::Image<tga::Rgb> {
                         g: shade,
                         b: shade,
                     };
-                    if linalg::point_is_in_rast_triangle(
+
+                    let vertex0_z = mesh.v_positions.zs[triangle.vertices[0]];
+                    let vertex1_z = mesh.v_positions.zs[triangle.vertices[1]];
+                    let vertex2_z = mesh.v_positions.zs[triangle.vertices[2]];
+
+                    let z = barycentric_coords.0 * vertex0_z
+                        + barycentric_coords.1 * vertex1_z
+                        + barycentric_coords.2 * vertex2_z;
+                    let z_offset: usize = (v as u32 * WIDTH as u32 + u as u32) as usize;
+
+                    if z_buffer[z_offset] < z && linalg::point_is_in_rast_triangle(
                         (u, v),
                         (vertex_buffer_x[0], vertex_buffer_y[0]),
                         (vertex_buffer_x[1], vertex_buffer_y[1]),
                         (vertex_buffer_x[2], vertex_buffer_y[2]),
                     ) {
                         let _ = mesh_img.set(u, v, colour);
+                        z_buffer[z_offset] = z;
                     }
                 }
             }
