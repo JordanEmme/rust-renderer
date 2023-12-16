@@ -64,7 +64,7 @@ pub fn mesh(mesh: Mesh) -> tga::Image<tga::Rgb> {
 
     let triangles = &mesh.triangles;
 
-    triangles.into_iter().for_each(|triangle|
+    triangles.into_iter().for_each(|triangle| {
         raster_triangle(
             &triangle,
             &mesh,
@@ -73,7 +73,7 @@ pub fn mesh(mesh: Mesh) -> tga::Image<tga::Rgb> {
             &mut vertex_buffer_y,
             &mut z_buffer,
         )
-    );
+    });
     return mesh_img;
 }
 
