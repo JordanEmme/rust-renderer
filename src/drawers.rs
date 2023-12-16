@@ -8,8 +8,8 @@ const LIGHT_DIRECTION: Point3D<f32> = Point3D {
     y: 0f32,
     z: -1f32,
 };
-const OBSERVER_DISTANCE: f32 = 1f32;
-const FOCAL_LENGTH: f32 = 1f32;
+//const OBSERVER_DISTANCE: f32 = 1f32;
+//const FOCAL_LENGTH: f32 = 1f32;
 const WIDTH: u16 = 1920;
 const HEIGHT: u16 = 1080;
 const ZOOM: f32 = 0.15f32;
