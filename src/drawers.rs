@@ -121,7 +121,8 @@ fn raster_triangle(
                 + barycentric_coords.z * vertex2_z;
             let z_offset: usize = (v as u32 * WIDTH as u32 + u as u32) as usize;
 
-            if z_buffer[z_offset] < z && linear_algebra::point_is_in_rast_triangle(&barycentric_coords)
+            if z_buffer[z_offset] < z
+                && linear_algebra::point_is_in_rast_triangle(&barycentric_coords)
             {
                 let _ = mesh_img.set(u, v, colour);
                 z_buffer[z_offset] = z;
@@ -189,9 +190,11 @@ pub fn wireframe(mesh: Mesh) -> tga::Image<tga::Rgb> {
     let min_y: f32 = camera_min.1;
     mesh.triangles.into_iter().for_each(|triangle| {
         for i in 0..3usize {
-            vertex_buffer_x[i] = (WIDTH_RENORMALISATION * (mesh.v_positions.xs[triangle.vertices[i]] - min_x))
+            vertex_buffer_x[i] = (WIDTH_RENORMALISATION
+                * (mesh.v_positions.xs[triangle.vertices[i]] - min_x))
                 .floor() as u16;
-            vertex_buffer_y[i] = (HEIGHT_RENORMALISATION * (mesh.v_positions.ys[triangle.vertices[i]] - min_y))
+            vertex_buffer_y[i] = (HEIGHT_RENORMALISATION
+                * (mesh.v_positions.ys[triangle.vertices[i]] - min_y))
                 .floor() as u16;
         }
         for i in 0..3usize {
