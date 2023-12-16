@@ -121,8 +121,7 @@ fn raster_triangle(
                 + barycentric_coords.z * vertex2_z;
             let z_offset: usize = (v as u32 * WIDTH as u32 + u as u32) as usize;
 
-            if z_buffer[z_offset] < z
-                && linear_algebra::point_is_in_rast_triangle(&barycentric_coords)
+            if z_buffer[z_offset] < z && linear_algebra::point_is_in_rast_triangle(&barycentric_coords)
             {
                 let _ = mesh_img.set(u, v, colour);
                 z_buffer[z_offset] = z;
