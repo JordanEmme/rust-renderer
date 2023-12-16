@@ -189,11 +189,9 @@ pub fn wireframe(mesh: Mesh) -> tga::Image<tga::Rgb> {
     let min_y: f32 = camera_min.1;
     mesh.triangles.into_iter().for_each(|triangle| {
         for i in 0..3usize {
-            vertex_buffer_x[i] = (WIDTH_RENORMALISATION
-                * (mesh.v_positions.xs[triangle.vertices[i]] - min_x))
+            vertex_buffer_x[i] = (WIDTH_RENORMALISATION * (mesh.v_positions.xs[triangle.vertices[i]] - min_x))
                 .floor() as u16;
-            vertex_buffer_y[i] = (HEIGHT_RENORMALISATION
-                * (mesh.v_positions.ys[triangle.vertices[i]] - min_y))
+            vertex_buffer_y[i] = (HEIGHT_RENORMALISATION * (mesh.v_positions.ys[triangle.vertices[i]] - min_y))
                 .floor() as u16;
         }
         for i in 0..3usize {
