@@ -1,6 +1,19 @@
 use super::bounding_box;
 use std::cmp::Ordering;
 
+#[derive(Copy, Clone, Debug)]
+pub struct Point3D<T> {
+    pub x: T,
+    pub y: T,
+    pub z: T,
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Point2D<T> {
+    pub x: T,
+    pub y: T,
+}
+
 #[derive(Clone, Debug)]
 pub struct Coords3D {
     pub xs: Vec<f32>,
@@ -36,8 +49,12 @@ impl Coords3D {
         self.zs.push(z);
     }
 
-    pub fn get_at(&self, i: usize) -> (f32, f32, f32) {
-        return (self.xs[i], self.ys[i], self.zs[i]);
+    pub fn get_at(&self, i: usize) -> Point3D<f32> {
+        return Point3D {
+            x: self.xs[i],
+            y: self.ys[i],
+            z: self.zs[i],
+        };
     }
 
     pub fn get_at_in_projective_space(
@@ -46,14 +63,14 @@ impl Coords3D {
         observer_distance: f32,
         focal_length: f32,
     ) -> (f32, f32) {
-        let (x, y, z): (f32, f32, f32) = self.get_at(i);
-        let t: f32 = focal_length / (observer_distance - z);
-        return (t * x, t * y);
+        let p = self.get_at(i);
+        let t: f32 = focal_length / (observer_distance - p.z);
+        return (t * p.x, t * p.y);
     }
 
-    pub fn get_at_orthonormal_projection(&self, i: usize) -> (f32, f32) {
-        let (x, y, _): (f32, f32, f32) = self.get_at(i);
-        return (x, y);
+    pub fn get_at_orthonormal_projection(&self, i: usize) -> Point2D<f32> {
+        let p = self.get_at(i);
+        return Point2D { x: p.x, y: p.y };
     }
 }
 
