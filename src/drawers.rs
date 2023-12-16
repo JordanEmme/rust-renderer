@@ -85,6 +85,58 @@ fn raster_triangle(
     vertex_buffer_y: &mut [u16; 3],
     z_buffer: &mut [f32],
 ) {
+    if mesh.triangle_is_backface(triangle, LIGHT_DIRECTION) {
+        return;
+    }
+    project_vertices_in_screen_space(mesh, triangle, vertex_buffer_x, vertex_buffer_y);
+
+    let tga_bounding_box: bounding_box::BoundingBox2D =
+        bounding_box::BoundingBox2D::get_bounding_box(&vertex_buffer_x, &vertex_buffer_y);
+
+    let vertex0_normal = mesh.v_normals.get_at(triangle.normals[0]);
+    let vertex1_normal = mesh.v_normals.get_at(triangle.normals[1]);
+    let vertex2_normal = mesh.v_normals.get_at(triangle.normals[2]);
+    let vertex0_z = mesh.v_positions.zs[triangle.vertices[0]];
+    let vertex1_z = mesh.v_positions.zs[triangle.vertices[1]];
+    let vertex2_z = mesh.v_positions.zs[triangle.vertices[2]];
+
+    for u in tga_bounding_box.min_u..=tga_bounding_box.max_u {
+        for v in tga_bounding_box.min_v..=tga_bounding_box.max_v {
+            let barycentric_coords = linear_algebra::point_barycentric_coord_in_rast_triangle(
+                (u, v),
+                (vertex_buffer_x[0], vertex_buffer_y[0]),
+                (vertex_buffer_x[1], vertex_buffer_y[1]),
+                (vertex_buffer_x[2], vertex_buffer_y[2]),
+            );
+
+            let colour = get_pixel_colour(
+                &barycentric_coords,
+                &vertex0_normal,
+                &vertex1_normal,
+                &vertex2_normal,
+            );
+
+            let z = barycentric_coords.x * vertex0_z
+                + barycentric_coords.y * vertex1_z
+                + barycentric_coords.z * vertex2_z;
+            let z_offset: usize = (v as u32 * WIDTH as u32 + u as u32) as usize;
+
+            if z_buffer[z_offset] < z
+                && linear_algebra::point_is_in_rast_triangle(&barycentric_coords)
+            {
+                let _ = mesh_img.set(u, v, colour);
+                z_buffer[z_offset] = z;
+            }
+        }
+    }
+}
+
+fn project_vertices_in_screen_space(
+    mesh: &Mesh,
+    triangle: &Triangle,
+    vertex_buffer_x: &mut [u16; 3],
+    vertex_buffer_y: &mut [u16; 3],
+) {
     for i in 0..3usize {
         let proj = mesh
             .v_positions
@@ -92,67 +144,30 @@ fn raster_triangle(
         vertex_buffer_x[i] = (WIDTH_RENORMALISATION * (proj.x + ZOOM * 16f32)).floor() as u16;
         vertex_buffer_y[i] = (HEIGHT_RENORMALISATION * (proj.y + ZOOM * 9f32)).floor() as u16;
     }
+}
 
-    let tga_bounding_box: bounding_box::BoundingBox2D =
-        bounding_box::BoundingBox2D::get_bounding_box(&vertex_buffer_x, &vertex_buffer_y);
-    let triangle_normal = linear_algebra::get_plane_normal(
-        mesh.v_positions.get_at(triangle.vertices[0]),
-        mesh.v_positions.get_at(triangle.vertices[1]),
-        mesh.v_positions.get_at(triangle.vertices[2]),
+fn get_pixel_colour(
+    barycentric_coords: &Point3D<f32>,
+    vertex0_normal: &Point3D<f32>,
+    vertex1_normal: &Point3D<f32>,
+    vertex2_normal: &Point3D<f32>,
+) -> tga::Rgb {
+    let normal_at_point = linear_algebra::barycentric_interpolation(
+        barycentric_coords,
+        vertex0_normal,
+        vertex1_normal,
+        vertex2_normal,
     );
-    let mut intensity: f32 = -linear_algebra::dot_product(triangle_normal, LIGHT_DIRECTION);
-    if intensity >= 0f32 {
-        for u in tga_bounding_box.min_u..=tga_bounding_box.max_u {
-            for v in tga_bounding_box.min_v..=tga_bounding_box.max_v {
-                let barycentric_coords = linear_algebra::point_barycentric_coord_in_rast_triangle(
-                    (u, v),
-                    (vertex_buffer_x[0], vertex_buffer_y[0]),
-                    (vertex_buffer_x[1], vertex_buffer_y[1]),
-                    (vertex_buffer_x[2], vertex_buffer_y[2]),
-                );
-                let vertex0_normal = mesh.v_normals.get_at(triangle.normals[0]);
-                let vertex1_normal = mesh.v_normals.get_at(triangle.normals[1]);
-                let vertex2_normal = mesh.v_normals.get_at(triangle.normals[2]);
 
-                let normal_at_point = Point3D {
-                    x: barycentric_coords.x * vertex0_normal.x
-                        + barycentric_coords.y * vertex1_normal.x
-                        + barycentric_coords.z * vertex2_normal.x,
-                    y: barycentric_coords.x * vertex0_normal.y
-                        + barycentric_coords.y * vertex1_normal.y
-                        + barycentric_coords.z * vertex2_normal.y,
-                    z: barycentric_coords.x * vertex0_normal.z
-                        + barycentric_coords.y * vertex1_normal.z
-                        + barycentric_coords.z * vertex2_normal.z,
-                };
+    let intensity = -linear_algebra::dot_product(normal_at_point, LIGHT_DIRECTION);
 
-                intensity = -linear_algebra::dot_product(normal_at_point, LIGHT_DIRECTION);
-
-                let shade: u8 = (intensity * 255f32).max(0f32) as u8;
-                let colour = tga::Rgb {
-                    r: shade,
-                    g: shade,
-                    b: shade,
-                };
-
-                let vertex0_z = mesh.v_positions.zs[triangle.vertices[0]];
-                let vertex1_z = mesh.v_positions.zs[triangle.vertices[1]];
-                let vertex2_z = mesh.v_positions.zs[triangle.vertices[2]];
-
-                let z = barycentric_coords.x * vertex0_z
-                    + barycentric_coords.y * vertex1_z
-                    + barycentric_coords.z * vertex2_z;
-                let z_offset: usize = (v as u32 * WIDTH as u32 + u as u32) as usize;
-
-                if z_buffer[z_offset] < z
-                    && linear_algebra::point_is_in_rast_triangle(&barycentric_coords)
-                {
-                    let _ = mesh_img.set(u, v, colour);
-                    z_buffer[z_offset] = z;
-                }
-            }
-        }
-    }
+    let shade: u8 = (intensity * 255f32).max(0f32) as u8;
+    let colour = tga::Rgb {
+        r: shade,
+        g: shade,
+        b: shade,
+    };
+    return colour;
 }
 
 pub fn wireframe(mesh: Mesh) -> tga::Image<tga::Rgb> {

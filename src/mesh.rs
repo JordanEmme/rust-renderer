@@ -1,4 +1,4 @@
-use super::bounding_box;
+use super::{bounding_box, linear_algebra};
 use std::cmp::Ordering;
 
 #[derive(Copy, Clone, Debug)]
@@ -99,6 +99,19 @@ impl Mesh {
             max_y,
             max_z,
         };
+    }
+
+    pub fn triangle_normal(&self, triangle: &Triangle) -> Point3D<f32> {
+        return linear_algebra::get_plane_normal(
+            self.v_positions.get_at(triangle.vertices[0]),
+            self.v_positions.get_at(triangle.vertices[1]),
+            self.v_positions.get_at(triangle.vertices[2]),
+        );
+    }
+
+    pub fn triangle_is_backface(&self, triangle: &Triangle, view_direction: Point3D<f32>) -> bool {
+        let triangle_normal = self.triangle_normal(triangle);
+        return linear_algebra::dot_product(triangle_normal, view_direction) > 0f32;
     }
 }
 

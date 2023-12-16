@@ -85,3 +85,22 @@ pub fn point_is_in_rast_triangle(barycentric_coordinates: &Point3D<f32>) -> bool
         && barycentric_coordinates.y >= 0f32
         && barycentric_coordinates.z >= 0f32;
 }
+
+pub fn barycentric_interpolation(
+    barycentric_coords: &Point3D<f32>,
+    vertex0_normal: &Point3D<f32>,
+    vertex1_normal: &Point3D<f32>,
+    vertex2_normal: &Point3D<f32>,
+) -> Point3D<f32> {
+    return Point3D {
+        x: barycentric_coords.x * vertex0_normal.x
+            + barycentric_coords.y * vertex1_normal.x
+            + barycentric_coords.z * vertex2_normal.x,
+        y: barycentric_coords.x * vertex0_normal.y
+            + barycentric_coords.y * vertex1_normal.y
+            + barycentric_coords.z * vertex2_normal.y,
+        z: barycentric_coords.x * vertex0_normal.z
+            + barycentric_coords.y * vertex1_normal.z
+            + barycentric_coords.z * vertex2_normal.z,
+    };
+}
